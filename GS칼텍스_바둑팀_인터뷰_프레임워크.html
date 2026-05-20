@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GS칼텍스 바둑팀 — 전문가 인터뷰 프레임워크</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;900&family=Noto+Serif+KR:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f5f3ef;
+  --surface: #ffffff;
+  --surface2: #f0ede8;
+  --border: #d8d2c9;
+  --border-strong: #b0a898;
+  --text: #1a1714;
+  --text-2: #4a4540;
+  --text-3: #7a7368;
+  --accent: #1e3a5f;
+  --accent-light: #e8eef5;
+  --danger: #8b1a1a;
+  --danger-light: #fdf0f0;
+  --warning: #7a5500;
+  --warning-light: #fdf8ee;
+  --success: #1a5c2e;
+  --success-light: #eef7f1;
+  --info: #1a4a6b;
+  --info-light: #eef4f9;
+  --purple: #3d1a6b;
+  --purple-light: #f3eef9;
+  --radius: 6px;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: 'Noto Sans KR', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  font-size: 14px;
+}
+
+/* ─── LAYOUT ─── */
+.page-wrap { max-width: 900px; margin: 0 auto; padding: 32px 20px 60px; }
+
+/* ─── HEADER ─── */
+.doc-header {
+  background: var(--accent);
+  color: white;
+  padding: 32px 36px;
+  border-radius: var(--radius);
+  margin-bottom: 24px;
+  position: relative;
+  overflow: hidden;
+}
+.doc-header::before {
+  content: '囲';
+  position: absolute;
+  right: 24px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 80px;
+  opacity: 0.07;
+  font-family: serif;
+}
+.doc-header-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+.doc-badge {
+  background: rgba(255,255,255,0.15);
+  border: 1px solid rgba(255,255,255,0.25);
+  border-radius: 99px;
+  font-size: 11px;
+  padding: 4px 12px;
+  letter-spacing: 0.05em;
+}
+.doc-meta { font-size: 11px; opacity: 0.65; }
+.doc-title {
+  font-family: 'Noto Serif KR', serif;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.doc-subtitle { font-size: 13px; opacity: 0.8; font-weight: 300; }
+
+
+
+/* ─── SITUATION SUMMARY ─── */
+.situation {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-bottom: 24px;
+  box-shadow: var(--shadow);
+}
+.situation-title {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-3);
+  text-transform: uppercase;
+  letter-spacing: 0.07em;
+  margin-bottom: 14px;
+}
+.stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 16px; }
+.stat-card {
+  background: var(--surface2);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.stat-label { font-size: 11px; color: var(--text-3); margin-bottom: 4px; }
+.stat-val { font-size: 18px; font-weight: 700; color: var(--accent); line-height: 1; }
+.stat-sub { font-size: 11px; color: var(--text-3); margin-top: 3px; }
+.stat-card.bad .stat-val { color: var(--danger); }
+.player-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.player-table th {
+  background: var(--accent);
+  color: white;
+  padding: 7px 10px;
+  text-align: left;
+  font-weight: 500;
+  font-size: 11px;
+}
+.player-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.player-table tr:last-child td { border-bottom: none; }
+.player-table tr:nth-child(even) td { background: var(--surface2); }
+.win-bar-wrap { display: flex; align-items: center; gap: 8px; }
+.win-bar { height: 6px; border-radius: 3px; flex-shrink: 0; }
+.win-bar.good { background: var(--success); }
+.win-bar.mid { background: var(--warning); }
+.win-bar.bad { background: var(--danger); }
+.win-pct { font-weight: 700; font-size: 12px; }
+.win-pct.good { color: var(--success); }
+.win-pct.mid { color: var(--warning); }
+.win-pct.bad { color: var(--danger); }
+.tag { display: inline-block; font-size: 10px; padding: 2px 7px; border-radius: 99px; font-weight: 500; }
+.tag-bad { background: var(--danger-light); color: var(--danger); }
+.tag-good { background: var(--success-light); color: var(--success); }
+.tag-mid { background: var(--warning-light); color: var(--warning); }
+
+/* ─── STRATEGY FRAME ─── */
+.frame-section {
+  background: var(--accent);
+  color: white;
+  border-radius: var(--radius);
+  padding: 22px 26px;
+  margin-bottom: 24px;
+}
+.frame-title {
+  font-size: 13px;
+  font-weight: 700;
+  opacity: 0.7;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  margin-bottom: 14px;
+}
+.frame-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+.frame-step {
+  background: rgba(255,255,255,0.1);
+  border: 1px solid rgba(255,255,255,0.15);
+  border-radius: var(--radius);
+  padding: 12px 14px;
+}
+.frame-step-num { font-size: 22px; font-weight: 900; opacity: 0.35; line-height: 1; margin-bottom: 4px; }
+.frame-step-label { font-size: 11px; font-weight: 700; margin-bottom: 4px; }
+.frame-step-desc { font-size: 11px; opacity: 0.75; line-height: 1.45; }
+.frame-note {
+  margin-top: 12px;
+  font-size: 11px;
+  opacity: 0.65;
+  border-top: 1px solid rgba(255,255,255,0.15);
+  padding-top: 10px;
+}
+
+/* ─── SECTION CARDS ─── */
+.section { margin-bottom: 20px; border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow); }
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  user-select: none;
+  transition: opacity 0.15s;
+}
+.section-header:hover { opacity: 0.9; }
+.section-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.2);
+  border: 1.5px solid rgba(255,255,255,0.4);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.section-hd-text { flex: 1; }
+.section-hd-label { font-size: 11px; opacity: 0.75; font-weight: 400; }
+.section-hd-title { font-size: 15px; font-weight: 700; color: white; line-height: 1.25; margin-top: 2px; }
+.section-chev { font-size: 18px; color: rgba(255,255,255,0.6); transition: transform 0.2s; flex-shrink: 0; }
+.section.open .section-chev { transform: rotate(180deg); }
+
+.s1 .section-header { background: #8b1a1a; }
+.s2 .section-header { background: #7a5500; }
+.s3 .section-header { background: #1a4a6b; }
+.s4 .section-header { background: #3d1a6b; }
+
+.section-body { background: var(--surface); display: none; }
+.section.open .section-body { display: block; }
+
+/* ─── QUESTION GROUPS ─── */
+.q-group { border-bottom: 1px solid var(--border); }
+.q-group:last-child { border-bottom: none; }
+.q-group-hd {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 14px 20px;
+  cursor: pointer;
+  background: var(--surface);
+  transition: background 0.1s;
+}
+.q-group-hd:hover { background: var(--surface2); }
+.q-group.open .q-group-hd { background: var(--surface2); }
+.q-badge {
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 9px;
+  border-radius: 99px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+.s1 .q-badge { background: var(--danger-light); color: var(--danger); }
+.s2 .q-badge { background: var(--warning-light); color: var(--warning); }
+.s3 .q-badge { background: var(--info-light); color: var(--info); }
+.s4 .q-badge { background: var(--purple-light); color: var(--purple); }
+
+.q-group-title { font-size: 13px; font-weight: 600; flex: 1; line-height: 1.35; }
+.q-group-chev { font-size: 14px; color: var(--text-3); transition: transform 0.2s; flex-shrink: 0; }
+.q-group.open .q-group-chev { transform: rotate(180deg); }
+.q-group-body { display: none; padding: 0 20px 16px; }
+.q-group.open .q-group-body { display: block; }
+
+.q-item { display: flex; gap: 12px; align-items: flex-start; margin-bottom: 12px; padding-top: 12px; border-top: 1px dashed var(--border); }
+.q-item:first-child { border-top: none; padding-top: 0; margin-top: 4px; }
+.q-item:last-child { margin-bottom: 0; }
+.q-dot { width: 6px; height: 6px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+.s1 .q-dot { background: var(--danger); }
+.s2 .q-dot { background: var(--warning); }
+.s3 .q-dot { background: var(--info); }
+.s4 .q-dot { background: var(--purple); }
+
+.q-content { flex: 1; }
+.q-main { font-size: 13px; font-weight: 500; color: var(--text); line-height: 1.55; }
+.q-why { font-size: 12px; color: var(--text-2); margin-top: 3px; line-height: 1.45; padding-left: 10px; border-left: 2px solid var(--border); }
+.q-follow { font-size: 11px; color: var(--text-3); margin-top: 5px; font-style: italic; }
+
+.insight-box {
+  background: var(--surface2);
+  border-left: 3px solid var(--border-strong);
+  border-radius: 0 var(--radius) var(--radius) 0;
+  padding: 10px 13px;
+  margin-top: 12px;
+  font-size: 12px;
+  color: var(--text-2);
+  line-height: 1.5;
+}
+.s1 .insight-box { border-left-color: var(--danger); }
+.s2 .insight-box { border-left-color: var(--warning); }
+.s3 .insight-box { border-left-color: var(--info); }
+.s4 .insight-box { border-left-color: var(--purple); }
+
+.data-callout {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: var(--accent-light);
+  border: 1px solid #b8ccdf;
+  border-radius: 4px;
+  padding: 4px 10px;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  margin: 4px 4px 4px 0;
+}
+.data-callout::before { content: '📊'; font-size: 12px; }
+
+/* ─── INTERVIEW GUIDE FOOTER ─── */
+.guide-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 20px 24px;
+  margin-top: 24px;
+  box-shadow: var(--shadow);
+}
+.guide-card-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 14px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--border);
+}
+.guide-rows { display: flex; flex-direction: column; gap: 8px; }
+.guide-row { display: flex; gap: 12px; align-items: flex-start; font-size: 12px; }
+.guide-num {
+  font-size: 12px;
+  font-weight: 700;
+  color: white;
+  background: var(--accent);
+  width: 20px; height: 20px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.guide-text { color: var(--text-2); line-height: 1.5; }
+.guide-text b { color: var(--text); }
+
+/* ─── FOOTER ─── */
+.doc-footer {
+  margin-top: 32px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 11px;
+  color: var(--text-3);
+}
+
+/* ─── PRINT ─── */
+@media print {
+  body { background: white; font-size: 11px; }
+  .page-wrap { max-width: 100%; padding: 0; }
+  .section-body { display: block !important; }
+  .q-group-body { display: block !important; }
+  .section-chev, .q-group-chev { display: none; }
+  .section-header { cursor: default; }
+  .q-group-hd { cursor: default; }
+  .section { box-shadow: none; border: 1px solid #ddd; }
+  .doc-header { border-radius: 0; }
+}
+
+@media (max-width: 600px) {
+  .stat-grid { grid-template-columns: repeat(2, 1fr); }
+  .frame-grid { grid-template-columns: 1fr; }
+  .doc-title { font-size: 18px; }
+  .fw-grid { grid-template-columns: 1fr; }
+  .fw-bottom-steps { flex-direction: column; gap: 4px; }
+  .fw-arrow { transform: rotate(90deg); }
+}
+
+/* ─── FRAMEWORK DIAGRAM ─── */
+.framework-wrap {
+  background: #0e1e30;
+  border-radius: var(--radius);
+  padding: 28px 24px 22px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.18);
+}
+.fw-title {
+  text-align: center;
+  font-family: 'Noto Serif KR', serif;
+  font-size: 15px;
+  font-weight: 700;
+  color: #e8eef5;
+  letter-spacing: -0.01em;
+  margin-bottom: 4px;
+}
+.fw-subtitle {
+  text-align: center;
+  font-size: 11px;
+  color: #7090b0;
+  margin-bottom: 18px;
+}
+.fw-center-row {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 6px;
+}
+.fw-center-node {
+  background: #2a4870;
+  border: 1.5px solid #4a78b0;
+  border-radius: 10px;
+  padding: 10px 28px;
+  text-align: center;
+  box-shadow: 0 0 0 4px rgba(74,120,176,0.12);
+}
+.fw-center-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: #e8eef5;
+  margin-bottom: 2px;
+}
+.fw-center-sub { font-size: 10px; color: #8ab0d0; }
+.fw-arrow-down {
+  text-align: center;
+  font-size: 18px;
+  color: #4a78b0;
+  margin: 4px 0 10px;
+  line-height: 1;
+}
+.fw-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+.fw-quad { border-radius: 8px; padding: 12px 14px; }
+.fw-q1 { background: #1a3830; border: 1px solid #2a6050; }
+.fw-q2 { background: #1a2a3a; border: 1px solid #2a4a6a; }
+.fw-q3 { background: #332010; border: 1px solid #6a4010; }
+.fw-q4 { background: #2a1a30; border: 1px solid #5a2a60; }
+.fw-quad-hd { display: flex; align-items: flex-start; gap: 8px; margin-bottom: 9px; }
+.fw-quad-num {
+  width: 24px; height: 24px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 12px; font-weight: 700; flex-shrink: 0; margin-top: 1px;
+}
+.fw-q1 .fw-quad-num { background: #2a7060; color: #a0e8d8; }
+.fw-q2 .fw-quad-num { background: #2a5080; color: #a0c8f0; }
+.fw-q3 .fw-quad-num { background: #7a4818; color: #f8c878; }
+.fw-q4 .fw-quad-num { background: #6a2870; color: #e0a8f0; }
+.fw-quad-title { font-size: 12px; font-weight: 700; margin-bottom: 1px; }
+.fw-q1 .fw-quad-title { color: #78e0c8; }
+.fw-q2 .fw-quad-title { color: #88b8e8; }
+.fw-q3 .fw-quad-title { color: #f0b860; }
+.fw-q4 .fw-quad-title { color: #d888f0; }
+.fw-quad-sub { font-size: 10px; }
+.fw-q1 .fw-quad-sub { color: #5aa090; }
+.fw-q2 .fw-quad-sub { color: #5880a0; }
+.fw-q3 .fw-quad-sub { color: #a07830; }
+.fw-q4 .fw-quad-sub { color: #8050a0; }
+.fw-quad-list { list-style: none; display: flex; flex-direction: column; gap: 4px; padding-left: 2px; }
+.fw-quad-list li { font-size: 10.5px; line-height: 1.4; padding-left: 10px; position: relative; }
+.fw-quad-list li::before { content: '·'; position: absolute; left: 0; font-size: 14px; line-height: 1; top: 1px; }
+.fw-q1 .fw-quad-list li { color: #90c8b8; }
+.fw-q1 .fw-quad-list li::before { color: #50a888; }
+.fw-q2 .fw-quad-list li { color: #80a8c8; }
+.fw-q2 .fw-quad-list li::before { color: #5088b0; }
+.fw-q3 .fw-quad-list li { color: #d8a868; }
+.fw-q3 .fw-quad-list li::before { color: #b07838; }
+.fw-q4 .fw-quad-list li { color: #c090d8; }
+.fw-q4 .fw-quad-list li::before { color: #9050b8; }
+.fw-bottom {
+  background: rgba(255,255,255,0.04);
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 6px;
+  padding: 11px 16px;
+  text-align: center;
+}
+.fw-bottom-title {
+  font-size: 10px; font-weight: 700; color: #7090b0;
+  letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px;
+}
+.fw-bottom-steps {
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap; margin-bottom: 6px;
+}
+.fw-step { display: flex; align-items: center; gap: 5px; font-size: 11px; color: #a0b8cc; }
+.fw-step-num {
+  background: #2a4870; border: 1px solid #4a78b0; border-radius: 99px;
+  font-size: 10px; font-weight: 700; color: #88b8e8; padding: 1px 6px;
+}
+.fw-arrow { color: #4a78b0; font-size: 13px; }
+.fw-bottom-note { font-size: 10px; color: #506070; }
+</style>
+</head>
+<body>
+<div class="page-wrap">
+
+<!-- ─── HEADER ─── -->
+<div class="doc-header">
+  <div class="doc-header-top">
+    <span class="doc-badge">전문가 인터뷰 가이드</span>
+    <span class="doc-meta">GS칼텍스 바둑팀 운영 개선 | 2026</span>
+  </div>
+  <div class="doc-title">GS칼텍스 바둑팀<br>전문가 인터뷰 프레임워크</div>
+  <div class="doc-subtitle">25-26 시즌 리뷰 반영 · 26-27 시즌 개선 방향 도출을 위한 핵심 질문 체계</div>
+</div>
+
+<!-- ─── FRAMEWORK DIAGRAM ─── -->
+<div class="framework-wrap">
+  <div class="fw-title">GS칼텍스 바둑팀 — 전문가 인터뷰 프레임</div>
+  <div class="fw-subtitle">팀 개선 목적 인터뷰 | 핵심 4개 영역</div>
+
+  <!-- Center node -->
+  <div class="fw-center-row">
+    <div class="fw-center-node">
+      <div class="fw-center-title">인터뷰 핵심 목표</div>
+      <div class="fw-center-sub">팀 구조 · 전략 · 방향성 진단</div>
+    </div>
+  </div>
+
+  <!-- Arrow down -->
+  <div class="fw-arrow-down">↓</div>
+
+  <!-- 4 quadrants -->
+  <div class="fw-grid">
+    <!-- ① 선수단 구성 -->
+    <div class="fw-quad fw-q1">
+      <div class="fw-quad-hd">
+        <span class="fw-quad-num">①</span>
+        <div>
+          <div class="fw-quad-title">선수단 구성 &amp; 역량</div>
+          <div class="fw-quad-sub">현재 전력의 객관적 위치</div>
+        </div>
+      </div>
+      <ul class="fw-quad-list">
+        <li>1지명 재선발 기준 — 42.9% 실패 원인</li>
+        <li>4~5지명 즉각 교체 선발 프로세스</li>
+        <li>리그 내 전력 순위 객관 평가</li>
+        <li>외국인 투샤오위 잔류 전략 가치</li>
+        <li>연봉제 전환 시 1지명 영입 전략</li>
+      </ul>
+    </div>
+
+    <!-- ② 팀 운영 & 시스템 -->
+    <div class="fw-quad fw-q2">
+      <div class="fw-quad-hd">
+        <span class="fw-quad-num">②</span>
+        <div>
+          <div class="fw-quad-title">팀 운영 &amp; 시스템</div>
+          <div class="fw-quad-sub">훈련 · 분석 · 지원 인프라</div>
+        </div>
+      </div>
+      <ul class="fw-quad-list">
+        <li>감독 교체 기준 — 친소관계 선발 문제</li>
+        <li>차기 감독 프로파일 (8인 후보군)</li>
+        <li>AI 기보분석 · 선수 선발 세분화</li>
+        <li>피셔룰 속기 대응 훈련 체계</li>
+        <li>선수 컨디션 · 심리 관리</li>
+      </ul>
+    </div>
+
+    <!-- ③ 리그 전략 & 성과 -->
+    <div class="fw-quad fw-q3">
+      <div class="fw-quad-hd">
+        <span class="fw-quad-num">③</span>
+        <div>
+          <div class="fw-quad-title">리그 전략 &amp; 성과</div>
+          <div class="fw-quad-sub">대국 운용 · 순위 목표</div>
+        </div>
+      </div>
+      <ul class="fw-quad-list">
+        <li>14경기 중 7회 2:3 석패 원인 진단</li>
+        <li>결정국 패배 구조 — 역량 vs 오더</li>
+        <li>상대팀에 읽힌 기용 패턴 탈피</li>
+        <li>포스트시즌 진출 현실적 조건</li>
+        <li>7팀 체제 전환 시 전략 변화</li>
+      </ul>
+    </div>
+
+    <!-- ④ 장기 방향성 & 브랜드 -->
+    <div class="fw-quad fw-q4">
+      <div class="fw-quad-hd">
+        <span class="fw-quad-num">④</span>
+        <div>
+          <div class="fw-quad-title">장기 방향성 &amp; 브랜드</div>
+          <div class="fw-quad-sub">지속가능성 · 팬덤 · 홍보</div>
+        </div>
+      </div>
+      <ul class="fw-quad-list">
+        <li>스폰서 교체(KB→하나) 대응 전략</li>
+        <li>선발 방식 변경(추첨→연봉제) 준비</li>
+        <li>GS칼텍스배 흥행 성공 시너지</li>
+        <li>CSR 연계 · 창단 20주년 활용</li>
+        <li>팀 후원 명분 — 내부 예산 정당화</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Bottom success condition -->
+  <div class="fw-bottom">
+    <div class="fw-bottom-title">인터뷰 성공 조건</div>
+    <div class="fw-bottom-steps">
+      <span class="fw-step"><span class="fw-step-num">①</span> 각 영역별 "현재 상태" 질문</span>
+      <span class="fw-arrow">→</span>
+      <span class="fw-step"><span class="fw-step-num">②</span> "경쟁팀 대비" 비교 질문</span>
+      <span class="fw-arrow">→</span>
+      <span class="fw-step"><span class="fw-step-num">③</span> "무엇이 바뀌어야 하나" 개선 질문</span>
+    </div>
+    <div class="fw-bottom-note">전문가의 주관적 의견보다 근거(데이터·사례)를 함께 요청할 것</div>
+  </div>
+</div>
+
+<!-- ─── SITUATION SUMMARY ─── -->
+<div class="situation">
+  <div class="situation-title">📋 25-26 시즌 현황 요약 (내부 데이터 기반)</div>
+  <div class="stat-grid">
+    <div class="stat-card bad">
+      <div class="stat-label">최종 순위</div>
+      <div class="stat-val">7위</div>
+      <div class="stat-sub">8개 팀 중 · 3시즌 연속 포스트 탈락</div>
+    </div>
+    <div class="stat-card bad">
+      <div class="stat-label">팀 성적</div>
+      <div class="stat-val">5승 9패</div>
+      <div class="stat-sub">승률 35.7% · 개인승차 -2</div>
+    </div>
+    <div class="stat-card bad">
+      <div class="stat-label">석패(2:3) 횟수</div>
+      <div class="stat-val">7회</div>
+      <div class="stat-sub">전체 14경기 중 · 3:2 승리는 단 2회</div>
+    </div>
+  </div>
+  <table class="player-table">
+    <thead>
+      <tr>
+        <th>선수</th>
+        <th>지명</th>
+        <th>승률</th>
+        <th>성적</th>
+        <th>평가</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr>
+        <td>원성진 9단</td>
+        <td>1지명 (주장)</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar bad" style="width:43px"></div>
+            <span class="win-pct bad">42.9%</span>
+          </div>
+        </td>
+        <td>6승 8패</td>
+        <td><span class="tag tag-bad">재선발 필요</span></td>
+      </tr>
+      <tr>
+        <td>김정현 9단</td>
+        <td>2지명</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar good" style="width:62px"></div>
+            <span class="win-pct good">61.5%</span>
+          </div>
+        </td>
+        <td>8승 5패</td>
+        <td><span class="tag tag-good">잔류 검토</span></td>
+      </tr>
+      <tr>
+        <td>나현 9단</td>
+        <td>3지명</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar good" style="width:69px"></div>
+            <span class="win-pct good">69.2%</span>
+          </div>
+        </td>
+        <td>9승 4패</td>
+        <td><span class="tag tag-good">잔류 검토</span></td>
+      </tr>
+      <tr>
+        <td>권효진 7단</td>
+        <td>4지명</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar bad" style="width:13px"></div>
+            <span class="win-pct bad">12.5%</span>
+          </div>
+        </td>
+        <td>1승 7패</td>
+        <td><span class="tag tag-bad">즉각 교체</span></td>
+      </tr>
+      <tr>
+        <td>김승재 9단</td>
+        <td>5지명</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar bad" style="width:33px"></div>
+            <span class="win-pct bad">33.3%</span>
+          </div>
+        </td>
+        <td>3승 6패</td>
+        <td><span class="tag tag-bad">재선발 필요</span></td>
+      </tr>
+      <tr>
+        <td>투샤오위 9단</td>
+        <td>외국인</td>
+        <td>
+          <div class="win-bar-wrap">
+            <div class="win-bar good" style="width:60px"></div>
+            <span class="win-pct good">60.0%</span>
+          </div>
+        </td>
+        <td>3승 2패</td>
+        <td><span class="tag tag-mid">잔류 검토</span></td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ─── STRATEGIC FRAME ─── -->
+<div class="frame-section">
+  <div class="frame-title">인터뷰 진행 전략 프레임</div>
+  <div class="frame-grid">
+    <div class="frame-step">
+      <div class="frame-step-num">1</div>
+      <div class="frame-step-label">현재 상태 진단</div>
+      <div class="frame-step-desc">"지금 이 팀의 문제가 정확히 무엇인가" — 데이터를 먼저 제시하고 전문가의 해석을 끌어낼 것</div>
+    </div>
+    <div class="frame-step">
+      <div class="frame-step-num">2</div>
+      <div class="frame-step-label">경쟁 비교</div>
+      <div class="frame-step-desc">"리그 내 상위 팀과 비교해 이 팀의 격차는 어디서 오는가" — 절대 평가가 아닌 상대 평가로 유도</div>
+    </div>
+    <div class="frame-step">
+      <div class="frame-step-num">3</div>
+      <div class="frame-step-label">개선 레버</div>
+      <div class="frame-step-desc">"지금 당장 하나만 바꾼다면" — 전문가의 진짜 우선순위를 끌어내는 클로징 질문</div>
+    </div>
+  </div>
+  <div class="frame-note">
+    ※ 전문가가 "전반적으로 잘 되어 있다"고 뭉뚱그리면 즉시 "그게 상위 팀 대비 어느 수준인가요?"로 되물을 것 · 근거 없는 감각적 답변 시 "기보 데이터/사례 기반"으로 재요청할 것
+  </div>
+</div>
+
+<!-- ─── SECTION 1: 선수단 구성 & 역량 ─── -->
+<div class="section s1" id="s1">
+  <div class="section-header" onclick="toggleSection('s1')">
+    <div class="section-num">①</div>
+    <div class="section-hd-text">
+      <div class="section-hd-label">선수단 구성 & 역량 평가</div>
+      <div class="section-hd-title">3연속 포스트시즌 탈락 — 선발 프로세스와 전력 재설계</div>
+    </div>
+    <span class="section-chev">▾</span>
+  </div>
+  <div class="section-body">
+
+    <div class="q-group" id="s1g1">
+      <div class="q-group-hd" onclick="toggleGroup('s1g1')">
+        <span class="q-badge">핵심①</span>
+        <span class="q-group-title">1지명 재선발 기준 — 42.9% 승률 실패 원인 진단</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">원성진 9단이 선발 당시 랭킹 8위에서 시즌 중 25위로 하락했는데, 선발 전 기량 하락세를 사전에 감지하지 못한 구조적 원인이 무엇이라고 보나요?</div>
+            <div class="q-why">→ 내부 문서에서 "선발 당시 랭킹 8위 → 현재 25위"로 하락세를 간과한 것이 명시됨. 감독의 정상급 선수 경기력 실시간 확인 시스템 부재가 문제</div>
+            <div class="q-follow">↳ 후속: "1지명 선발 시 단순 랭킹 외에 어떤 지표를 봐야 하락세를 조기 포착할 수 있었을까요?"</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">리그 상위권 팀에서 1지명이 6~7할 승률을 유지하는 반면, GS의 1지명이 4할대로 떨어진 근본적 차이가 무엇인가요?</div>
+            <div class="q-why">→ 내부 분석에 따르면 "1지명자 2:3 패배 경기에서 2승 5패" — 에이스가 결정국에서 특히 약했음</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">26-27 드래프트에서 1지명 후보군으로 주목해야 할 선수가 누구인가요? 연봉제 전환 검토 시 영입 가능한 선수는요?</div>
+            <div class="q-why">→ 바둑리그 선수 선발 방식이 추첨 → 1선발 연봉제로 변경 검토 중. 이 변화에 선제 대응 필요</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">내부 데이터</div>
+          1지명이 5할 이하 승률일 경우 5국에서 패해 2:3 패 가능성이 급증. 이는 단순히 "에이스가 약했다"가 아니라 오더 구조 전체의 문제임 — 1지명 부진을 다른 지명자가 보완할 수 있는 오더 설계가 없었음.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s1g2">
+      <div class="q-group-hd" onclick="toggleGroup('s1g2')">
+        <span class="q-badge">핵심②</span>
+        <span class="q-group-title">4~5지명 즉각 교체 — 하위 지명 선발 프로세스 개선</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">권효진 7단이 12.5% 승률(1승 7패)을 기록했는데, 선발 전 이 결과를 예측할 수 있었던 신호가 있었나요? 4지명 선발 시 어떤 평가 기준이 보완되어야 했을까요?</div>
+            <div class="q-why">→ 내부 문서는 "유망주 및 성장 가능성 판단 실패, 선수 선발 시 경기력 평가 세분화 필요"를 명시. 선발 프로세스 자체가 문제</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">리그 내 4~5지명에서 45% 승률을 안정적으로 유지하는 팀들은 어떤 기준으로 하위 지명 선수를 선발하나요? 전투형/실리형 등 스타일 구분이 실제로 유효한가요?</div>
+            <div class="q-why">→ 26-27 계획에서 "로테이션 Pool 운영(전투형/실리형)"이 언급됨. 이 전략의 현실적 효과를 검증</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">26-27 목표</div>
+          4~5지명 승률 45% 목표 설정. 현재 권효진 12.5%, 김승재 33.3%에서 45%로 올리려면 선수 교체 없이는 불가능. 전문가에게 "이 목표가 현실적인가" 직접 확인 필요.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s1g3">
+      <div class="q-group-hd" onclick="toggleGroup('s1g3')">
+        <span class="q-badge">추가①</span>
+        <span class="q-group-title">투샤오위 잔류 가치 & 외국인 선수 전략</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">투샤오위가 60% 승률(3승 2패)로 선방했는데, 2년차 시즌에서 리그 적응도가 더 오를 것으로 보나요? 잔류 vs 신규 영입, 어떤 선택이 더 유리한가요?</div>
+            <div class="q-why">→ 내부 계획에서 "투샤오위 잔류 또는 동급 이상 외국인 선수 선발" 검토 중. 리그 경험 1년차 vs 신규 영입의 트레이드오프를 전문가 시각으로 평가</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">경쟁팀(합천 판인 2년차, 원익 진위청 2년차, 영림 당이페이 3년차)의 외국인 선수 활용 방식과 비교해서, GS의 외국인 선수 전략적 배치(상대 에이스 맞대결 또는 하위 지명자 상대 1승 확보)가 어떻게 설계되어야 할까요?</div>
+            <div class="q-why">→ 26-27 계획에서 "중국 선수 전략 카드화"가 명시됨. 구체적 배치 전략 논의</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── SECTION 2: 리그 전략 & 성과 ─── -->
+<div class="section s2" id="s2">
+  <div class="section-header" onclick="toggleSection('s2')">
+    <div class="section-num">②</div>
+    <div class="section-hd-text">
+      <div class="section-hd-label">리그 전략 & 성과</div>
+      <div class="section-hd-title">석패(2:3) 7회 — 결정국 패배 구조와 오더 전략 재설계</div>
+    </div>
+    <span class="section-chev">▾</span>
+  </div>
+  <div class="section-body">
+
+    <div class="q-group" id="s2g1">
+      <div class="q-group-hd" onclick="toggleGroup('s2g1')">
+        <span class="q-badge">핵심①</span>
+        <span class="q-group-title">14경기 중 7회 2:3 석패 — 결정국 패패 패턴 분석</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">14경기 중 7경기가 2:3 석패였는데, 이 패턴이 "선수 역량의 문제"인가, "오더/전략의 문제"인가, 아니면 "결정국 심리 관리의 문제"인가요?</div>
+            <div class="q-why">→ 내부 문서는 "전력의 붕괴가 아닌 구조적인 실패. 접전에서 매번 지는 팀"이라고 진단. 이 구조적 실패의 정확한 원인 규명 필요</div>
+            <div class="q-follow">↳ 후속: "3:2로 이긴 2회와 2:3으로 진 7회의 차이에서 발견되는 공통점이 있나요?"</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">결정국(5국)에서 GS팀이 반복적으로 지는 패턴이 있다면, 그게 포석 단계 문제인가요, 중반 전투인가요, 아니면 끝내기/시간 관리 문제인가요?</div>
+            <div class="q-why">→ 피셔룰 하에서 결정국은 심리 압박이 가장 크고 시간 관리 실패가 치명적. 구체적 패인 분석 요청</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">핵심 수치</div>
+          3:2 승리 단 2회 vs 2:3 패배 7회 — 이 비율 차이만으로도 "팀 전력이 아닌 접전 운영 능력"이 핵심 문제임을 보여줌. 전문가에게 이 수치를 제시하고 리그 내 유사 패턴 팀 사례와 비교 요청.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s2g2">
+      <div class="q-group-hd" onclick="toggleGroup('s2g2')">
+        <span class="q-badge">핵심②</span>
+        <span class="q-group-title">오더 전략 재설계 — 상대팀에 읽힌 기용 패턴 탈피</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">내부 분석에서 "상대팀이 GS칼텍스 기용 패턴에 적응했다"고 했는데, 구체적으로 어떤 패턴이 읽혔다고 보나요? 변칙 오더를 효과적으로 사용하는 팀의 사례가 있나요?</div>
+            <div class="q-why">→ 26-27 계획에서 "오더 전략 재설계: 2~3지명 중심 승점 확보 대응, 1지명 변칙 포함" 검토 중. 리그 내 성공 사례 확인 필요</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">정관장(8위), 수려한 합천(5위), 한옥마을 전주(3위)에게 2전 2패를 기록했는데, 이 팀들에 대한 공통 약점이 있나요? 상대별 맞춤 오더 전략 수립이 현실적으로 가능한가요?</div>
+            <div class="q-why">→ 영암에는 2전 2승이지만 특정 팀에 편중된 패배 패턴이 있음. 데이터 기반 상대별 전략 수립 가능성 확인</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s2g3">
+      <div class="q-group-hd" onclick="toggleGroup('s2g3')">
+        <span class="q-badge">추가①</span>
+        <span class="q-group-title">포스트시즌 진출 목표 — 현실성과 필요 조건</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">26-27 시즌 포스트시즌 진출 목표가 현실적으로 가능하려면 최소한 어떤 조건이 갖춰져야 하나요? 1지명 60% + 4~5지명 45% 목표가 달성된다면 순위가 어느 수준이 될까요?</div>
+            <div class="q-why">→ 영림창호팀 해체 확실시로 26-27 리그는 7팀 체제가 될 수 있음. 팀 수 감소가 포스트시즌 진출에 유리하게 작용할 수 있음</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── SECTION 3: 팀 운영 & 시스템 ─── -->
+<div class="section s3" id="s3">
+  <div class="section-header" onclick="toggleSection('s3')">
+    <div class="section-num">③</div>
+    <div class="section-hd-text">
+      <div class="section-hd-label">팀 운영 & 시스템</div>
+      <div class="section-hd-title">감독 교체 검토 — 차기 감독 프로파일과 운영 체계 개편</div>
+    </div>
+    <span class="section-chev">▾</span>
+  </div>
+  <div class="section-body">
+
+    <div class="q-group" id="s3g1">
+      <div class="q-group-hd" onclick="toggleGroup('s3g1')">
+        <span class="q-badge">핵심①</span>
+        <span class="q-group-title">감독 교체 기준 — 14년 체제 vs 3연속 포스트 탈락</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">바둑리그에서 감독 교체가 팀 성적에 실질적인 영향을 미치는 사례가 있나요? 교체 이후 성적이 반등한 팀과 오히려 악화된 팀의 공통점은 무엇인가요?</div>
+            <div class="q-why">→ 내부 문서에서 "22년간 총 37개 팀 창단/해체" — 감독 교체 사례 자체가 드묾. 전문가에게 교체 효과를 객관적으로 평가 요청</div>
+            <div class="q-follow">↳ 후속: "GS의 경우 3연속 포스트 탈락과 친소관계 선발 문제가 있는데, 이 정도면 교체가 정당화되는 수준인가요?"</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">차기 감독이 갖춰야 할 최우선 역량이 무엇인가요? "정상급 선수 기량 실시간 파악", "선수단 조직 장악력", "오더 전략 수립", "중국 선수 네트워크" 중 어느 것이 가장 중요한가요?</div>
+            <div class="q-why">→ 내부 문서의 감독 역할 기준(선수 선발·오더 작성, 선수단 관리, 의사결정력, 인터뷰 능력)을 외부 전문가 시각으로 검증</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">내부 문서 기준</div>
+          감독 후보군으로 목진석(국가대표 감독 역임, 중국어 능통), 박정상(영림팀 우승, 대중 인지도 높음, 중국 네트워크), 김지석(Mr. GS칼텍스, 현역 상위 랭커), 한종진(리그 감독 다수 경험, 여수 출신) 등 8인이 검토됨.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s3g2">
+      <div class="q-group-hd" onclick="toggleGroup('s3g2')">
+        <span class="q-badge">핵심②</span>
+        <span class="q-group-title">AI 기보 분석 & 데이터 기반 선수 선발 체계</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">선수 선발 시 AI 기보 분석을 활용해 "랭킹 외 하락세·스타일 적합성"을 파악하는 팀이 있나요? 이 시스템을 도입한다면 어떻게 구현하는 게 현실적인가요?</div>
+            <div class="q-why">→ 내부 분석에서 "선수 선발 시 경기력 평가 세분화 필요"가 명시됨. AI를 활용한 사전 스크리닝 시스템 구축 가능성 확인</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">상대팀 기용 패턴을 사전 분석해서 오더에 반영하는 체계적 프로세스를 갖춘 팀이 리그 내에 있나요? 그 팀의 방법론을 어떻게 적용할 수 있을까요?</div>
+            <div class="q-why">→ 결정국 패배 개선을 위한 데이터 기반 오더 전략 수립 가능성 탐색</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s3g3">
+      <div class="q-group-hd" onclick="toggleGroup('s3g3')">
+        <span class="q-badge">추가①</span>
+        <span class="q-group-title">피셔룰 속기 대응 & 선수 컨디션 관리</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">25-26 시즌에서 GS 선수단이 피셔룰 속기에서 시간 압박 관련 실수가 있었나요? 경쟁팀 대비 속기 적응 수준은 어떻게 평가하나요?</div>
+            <div class="q-why">→ 26-27부터 착수시 추가 시간이 10초→15초로 변경됨. 이 변화가 팀에 유리/불리한지 확인 필요</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">연패 이후 팀 분위기 관리와 다음 대국 준비 루틴이 있나요? 내성적인 개인 종목 선수들로 구성된 팀 특성상 팀워크 강화가 가능한가요?</div>
+            <div class="q-why">→ 내부 계획에서 "신규 선수단 구성 후 인터뷰·워크샵을 통한 팀웍 증진" 검토 중. 실효성 있는 방법론 확인</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── SECTION 4: 장기 방향성 & 브랜드 ─── -->
+<div class="section s4" id="s4">
+  <div class="section-header" onclick="toggleSection('s4')">
+    <div class="section-num">④</div>
+    <div class="section-hd-text">
+      <div class="section-hd-label">장기 방향성 & 브랜드 가치</div>
+      <div class="section-hd-title">리그 환경 급변 대응 — GS 후원의 지속 가능성과 브랜드 재정립</div>
+    </div>
+    <span class="section-chev">▾</span>
+  </div>
+  <div class="section-body">
+
+    <div class="q-group" id="s4g1">
+      <div class="q-group-hd" onclick="toggleGroup('s4g1')">
+        <span class="q-badge">핵심①</span>
+        <span class="q-group-title">리그 환경 급변 — 스폰서 교체·선발 방식 변경·팀 해체</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">바둑리그 타이틀 스폰서가 KB국민은행에서 하나은행으로 바뀌는데, 리그 운영 방식이나 후원사 팀의 처우에 어떤 변화가 예상되나요?</div>
+            <div class="q-why">→ 스폰서 교체는 리그 규정·예산·방향성 변화를 가져올 수 있음. 적기 대응을 위한 정보 선점 필요</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">선수 선발 방식이 추첨제에서 1선발 연봉제로 바뀌면 GS칼텍스에게 유리한가요, 불리한가요? 어떤 준비가 필요한가요?</div>
+            <div class="q-why">→ 내부 계획에서 "변경 확정 시 신속한 보고 및 재원 확보로 최고 선수 영입에 주력" 명시. 연봉제 하에서 GS의 경쟁력 사전 평가 필요</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">영림창호팀이 해체되고 화성시팀이 들어오는데, 팀 구성 변화가 리그 전반적인 경쟁 구도에 어떤 영향을 미칠까요?</div>
+            <div class="q-why">→ 영림 해체 시 지난 시즌 우승팀 선수단 분산 → 드래프트 영향, 7팀 체제에서 포스트시즌 진출 기회 변화</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">리그 변화 3종</div>
+          ① 스폰서 교체(KB→하나) ② 선발 방식 변경(추첨→연봉제 검토) ③ 팀 해체(영림창호→화성시) — 이 세 가지 변화가 26-27 시즌 준비의 핵심 외부 환경 요인. 어느 하나도 GS 단독으로 결정할 수 없는 변수들.
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s4g2">
+      <div class="q-group-hd" onclick="toggleGroup('s4g2')">
+        <span class="q-badge">핵심②</span>
+        <span class="q-group-title">GS칼텍스배 흥행 성공 — 팀리그와의 시너지 구조</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">31기 GS칼텍스배가 수만 명 시청률로 흥행에 성공하고 있는데, 바둑팀 리그 성적이 부진한 상황에서 프로기전 후원의 브랜드 가치가 더 클 수 있을까요? 두 채널의 역할을 어떻게 구분하면 좋을까요?</div>
+            <div class="q-why">→ GS칼텍스배(기전)=프리미엄 바둑 이미지, 바둑리그팀=지역밀착·스포츠 재미라는 이중 포지셔닝 전략 확인 필요</div>
+            <div class="q-follow">↳ 후속: "김정현 선수가 GS칼텍스배 4강에 진출했는데, 이를 팀 홍보에 활용하는 콘텐츠 전략이 있나요?"</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">결승전 1차전 여수 개최, 팬 초청 행사 등 GS칼텍스배 콘텐츠 강화 계획이 있는데, 바둑 팬 확대 효과가 장기적으로 팀 후원 명분을 강화할 수 있을까요?</div>
+            <div class="q-why">→ 내부 계획에서 "선수 기풍·특징 소개 콘텐츠 제작, 결승전 공개 해설·팬 초청 행사" 검토 중. 이 활동들의 브랜드 효과 검증</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="q-group" id="s4g3">
+      <div class="q-group-hd" onclick="toggleGroup('s4g3')">
+        <span class="q-badge">추가①</span>
+        <span class="q-group-title">CSR 연계 활동 & 팀 창단 20주년 활용</span>
+        <span class="q-group-chev">▾</span>
+      </div>
+      <div class="q-group-body">
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">임직원 초보 바둑교실, 여수 위기청소년 바둑교실, 다문화 바둑교실 등 CSR 연계 계획이 있는데, 이 활동들이 기업 내부의 후원 명분을 강화하는 데 실질적으로 도움이 될까요? 유사 사례에서 효과가 있었나요?</div>
+            <div class="q-why">→ 내부 문서에서 "바둑-CSR 사업 연계 검토"가 명시됨. 예산 5백만원 규모의 임직원 바둑교실 효과를 현실적으로 평가 필요</div>
+          </div>
+        </div>
+        <div class="q-item">
+          <div class="q-dot"></div>
+          <div class="q-content">
+            <div class="q-main">팀 창단 20주년(2026년)을 활용해서 "리그 최장수 후원사" 스토리를 브랜드 자산으로 전환할 수 있는 구체적인 방법이 있을까요? 다른 스포츠 팀의 창단 기념 활용 사례 중 참고할 만한 게 있나요?</div>
+            <div class="q-why">→ 성적 부진 시즌에 "20주년"을 레버리지로 활용해 내부 예산 정당화 및 외부 홍보 효과를 동시에 노릴 수 있는 기회</div>
+          </div>
+        </div>
+        <div class="insight-box">
+          <div class="data-callout">클로징 질문</div>
+          "GS칼텍스 바둑팀이 지금 당장 하나만 바꿀 수 있다면 무엇을 바꾸겠습니까?" — 이 질문은 모든 영역을 소화한 후 마지막에 할 것. 전문가의 진짜 우선순위를 드러내는 가장 효과적인 마무리 질문.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ─── INTERVIEW GUIDE ─── -->
+<div class="guide-card">
+  <div class="guide-card-title">인터뷰 성공을 위한 현장 가이드</div>
+  <div class="guide-rows">
+    <div class="guide-row">
+      <div class="guide-num">1</div>
+      <div class="guide-text"><b>데이터 선제 제시</b> — "우리 1지명이 42.9% 승률이었는데 어떻게 보세요?" 형태로 수치를 먼저 제시하면 방어적 답변이 나오지 않음</div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-num">2</div>
+      <div class="guide-text"><b>상대 평가 유도</b> — "잘 하고 있습니다" 류의 답변이 나오면 즉시 "경쟁팀 대비 어느 수준인가요?"로 전환. 절대 평가 차단</div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-num">3</div>
+      <div class="guide-text"><b>근거 요청</b> — 감각적 답변에는 "구체적인 사례나 데이터가 있나요?"로 재요청. 편향된 감각 의견과 근거 있는 평가를 구분</div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-num">4</div>
+      <div class="guide-text"><b>불편한 질문 순서</b> — 편안한 ①②로 신뢰 구축 후, 날카로운 ③④로 진행. 감독 교체·후원 명분 같은 민감 주제는 반드시 후반부에</div>
+    </div>
+    <div class="guide-row">
+      <div class="guide-num">5</div>
+      <div class="guide-text"><b>클로징</b> — 모든 영역 소화 후 "지금 당장 하나만 바꾼다면?"으로 마무리. 전문가의 핵심 우선순위를 드러냄</div>
+    </div>
+  </div>
+</div>
+
+<!-- ─── FOOTER ─── -->
+<div class="doc-footer">
+  <span>GS칼텍스 바둑팀 운영 개선 | 전략기획실</span>
+  <span>25-26 시즌 리뷰 기반 | 2026</span>
+</div>
+
+</div><!-- /page-wrap -->
+
+<script>
+function toggleSection(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+function toggleGroup(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('open');
+}
+// 첫 번째 섹션 기본 오픈
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('s1').classList.add('open');
+  document.getElementById('s1g1').classList.add('open');
+});
+</script>
+</body>
+</html>
