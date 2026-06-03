@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>명예회장 보고 — 바둑 현안 브리프</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard/dist/web/static/pretendard.css">
+<style>
+:root {
+  --color-primary: #007AFF;
+  --color-bg: #FFFFFF;
+  --color-bg-secondary: #F2F2F7;
+  --color-label: #000000;
+  --color-label-muted: #3C3C43;
+  --color-label-subtle: #AEAEB2;
+  --color-separator: #C6C6C8;
+  --color-fill: #D4D4D7;
+  --color-red: #FF3B30;
+  --color-green: #34C759;
+  --font: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Helvetica Neue', Arial, sans-serif;
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 16px;
+  --radius-full: 9999px;
+  --space-1: 4px; --space-2: 8px;
+  --space-3: 12px; --space-4: 16px;
+  --space-6: 24px; --space-8: 32px;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--color-bg-secondary);
+  color: var(--color-label);
+  font-size: 14px; line-height: 1.6;
+}
+.wrap { max-width: 860px; margin: 0 auto; padding: var(--space-8) var(--space-4) 60px; }
+
+/* HEADER */
+.doc-header {
+  background: #0F2B4A; color: white;
+  border-radius: var(--radius-lg);
+  padding: 28px 36px; margin-bottom: var(--space-4);
+  position: relative; overflow: hidden;
+}
+.doc-header::after {
+  content: '囲';
+  position: absolute; right: 20px; top: 50%; transform: translateY(-50%);
+  font-size: 100px; opacity: 0.05; pointer-events: none;
+}
+.doc-eyebrow { font-size: 11px; opacity: 0.6; letter-spacing: 0.06em; text-transform: uppercase; margin-bottom: var(--space-2); }
+.doc-title { font-size: 20px; font-weight: 700; margin-bottom: var(--space-1); letter-spacing: -0.02em; }
+.doc-sub { font-size: 13px; opacity: 0.6; margin-bottom: var(--space-4); }
+.doc-chips { display: flex; gap: var(--space-2); flex-wrap: wrap; }
+.chip { font-size: 11px; padding: 3px 10px; border-radius: var(--radius-full); background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: rgba(255,255,255,0.85); }
+.chip.warn { background: rgba(255,59,48,0.28); border-color: rgba(255,59,48,0.5); }
+.chip.info { background: rgba(0,122,255,0.28); border-color: rgba(0,122,255,0.5); }
+
+/* ISSUE CARD */
+.issue-card {
+  background: var(--color-bg);
+  border-radius: var(--radius-lg);
+  margin-bottom: var(--space-4);
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+}
+.issue-hd {
+  display: flex; align-items: center; gap: var(--space-3);
+  padding: var(--space-4) var(--space-6);
+  border-bottom: 1px solid var(--color-separator);
+}
+.issue-num {
+  width: 32px; height: 32px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 14px; font-weight: 700; color: white;
+  flex-shrink: 0;
+}
+.num1 { background: #C0392B; }
+.num2 { background: #1A5A8A; }
+.num3 { background: #1A6B35; }
+.num4 { background: #0F2B4A; }
+.issue-title { font-size: 15px; font-weight: 700; }
+.issue-body { padding: var(--space-6); }
+
+/* SUB TITLE */
+.sub-title {
+  font-size: 11px; font-weight: 700;
+  color: var(--color-label-muted);
+  letter-spacing: 0.06em; text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+
+/* COMPARE TABLE */
+.cmp-wrap { border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--color-separator); margin-bottom: var(--space-4); }
+.cmp-table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+.cmp-table th { background: var(--color-bg-secondary); padding: var(--space-2) var(--space-3); font-size: 11px; font-weight: 600; color: var(--color-label-muted); text-align: left; border-bottom: 1.5px solid var(--color-separator); }
+.cmp-table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-separator); vertical-align: top; }
+.cmp-table tr:last-child td { border-bottom: none; }
+.cmp-table .hl { font-weight: 700; color: var(--color-label); }
+.cmp-table .warn { color: var(--color-red); font-weight: 600; }
+.cmp-table .good { color: #1A6335; font-weight: 600; }
+
+/* PROS CONS */
+.pros-cons { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+.pros-card, .cons-card { border-radius: var(--radius-md); padding: var(--space-4); }
+.pros-card { background: #EDFAF2; border: 1px solid rgba(52,199,89,0.25); }
+.cons-card { background: #FFF5F4; border: 1px solid rgba(255,59,48,0.2); }
+.pc-title { font-size: 11px; font-weight: 700; margin-bottom: var(--space-2); }
+.pros-card .pc-title { color: #1A6335; }
+.cons-card .pc-title { color: var(--color-red); }
+.pc-list { list-style: none; display: flex; flex-direction: column; gap: 5px; }
+.pc-list li { font-size: 12px; color: var(--color-label-muted); padding-left: 12px; position: relative; line-height: 1.45; }
+.pros-card .pc-list li::before { content: '✓'; position: absolute; left: 0; color: #1A6335; font-size: 11px; font-weight: 700; }
+.cons-card .pc-list li::before { content: '!'; position: absolute; left: 0; color: var(--color-red); font-size: 11px; font-weight: 700; }
+
+/* SCENARIO TABLE */
+.scenario-list { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+.scenario-row {
+  display: flex; gap: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  border-radius: var(--radius-md);
+  border: 1px solid var(--color-separator);
+  background: var(--color-bg);
+  align-items: flex-start;
+}
+.scenario-row.primary { border-color: #0F2B4A; background: #F5F8FC; }
+.s-badge { font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: var(--radius-full); flex-shrink: 0; margin-top: 2px; }
+.s-badge.preferred { background: #E6EFF8; color: #0F2B4A; }
+.s-badge.risk { background: #FFF0EE; color: var(--color-red); }
+.s-badge.neutral { background: var(--color-bg-secondary); color: var(--color-label-muted); }
+.s-content { flex: 1; }
+.s-title { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+.s-desc { font-size: 12px; color: var(--color-label-muted); line-height: 1.5; }
+
+/* INSIGHT BOX */
+.insight {
+  background: var(--color-bg-secondary);
+  border-left: 3px solid #0F2B4A;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  padding: var(--space-3) var(--space-4);
+  font-size: 12px; color: var(--color-label-muted);
+  margin-top: var(--space-3); line-height: 1.6;
+}
+.insight.warn { border-left-color: var(--color-red); }
+.insight.good { border-left-color: var(--color-green); }
+.insight strong { color: var(--color-label); }
+
+/* POLICY GRID */
+.policy-grid { display: grid; grid-template-columns: 1fr 1fr; gap: var(--space-3); margin-bottom: var(--space-4); }
+.policy-card { border: 1px solid var(--color-separator); border-radius: var(--radius-md); padding: var(--space-4); }
+.policy-label { font-size: 11px; font-weight: 700; color: var(--color-label-subtle); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: var(--space-2); }
+.policy-title { font-size: 13px; font-weight: 700; margin-bottom: var(--space-2); }
+.policy-items { display: flex; flex-direction: column; gap: 4px; }
+.policy-items li { font-size: 12px; color: var(--color-label-muted); padding-left: 12px; position: relative; line-height: 1.45; }
+.policy-items li::before { content: '·'; position: absolute; left: 2px; color: var(--color-label-subtle); }
+
+/* RESPONSE TABLE */
+.resp-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.resp-table th { background: #0F2B4A; color: white; padding: var(--space-2) var(--space-3); font-size: 11px; font-weight: 600; text-align: left; }
+.resp-table td { padding: var(--space-2) var(--space-3); border-bottom: 1px solid var(--color-separator); vertical-align: top; }
+.resp-table tr:last-child td { border-bottom: none; }
+.resp-table tr:nth-child(even) td { background: var(--color-bg-secondary); }
+.resp-table .action { color: #0F2B4A; font-weight: 600; }
+
+/* DATA LIST */
+.data-list { display: flex; flex-direction: column; gap: var(--space-2); margin-bottom: var(--space-4); }
+.data-row {
+  display: flex; align-items: baseline; gap: var(--space-3);
+  padding: var(--space-2) var(--space-3);
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-sm); font-size: 12px;
+}
+.data-key { font-weight: 600; width: 120px; flex-shrink: 0; }
+.data-val { color: var(--color-label-muted); flex: 1; }
+.data-val.warn { color: var(--color-red); font-weight: 500; }
+.data-val.good { color: #1A6335; font-weight: 500; }
+
+/* FOOTER */
+.doc-footer { margin-top: var(--space-8); padding-top: var(--space-4); border-top: 1px solid var(--color-separator); display: flex; justify-content: space-between; font-size: 11px; color: var(--color-label-subtle); }
+
+@media (max-width: 600px) {
+  .pros-cons, .policy-grid { grid-template-columns: 1fr; }
+  .doc-title { font-size: 17px; }
+}
+@media print {
+  body { background: white; font-size: 11px; }
+  .wrap { max-width: 100%; padding: 0; }
+  .issue-card { break-inside: avoid; box-shadow: none; border: 1px solid #ddd; }
+  .doc-header { border-radius: 0; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<!-- HEADER -->
+<div class="doc-header">
+  <div class="doc-eyebrow">명예회장 보고 · 기밀</div>
+  <div class="doc-title">바둑 현안 브리프</div>
+  <div class="doc-sub">정태순 이사장 면담 대비 핵심 3개 이슈 정리 | 2026.06</div>
+  <div class="doc-chips">
+    <span class="chip warn">수협배 신설 — 예산 압박</span>
+    <span class="chip info">바둑리그 연봉제 전환 논의 중</span>
+    <span class="chip">정태순 이사장 주요 정책 방향</span>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     이슈 1: 수협배 신설
+══════════════════════════════════════ -->
+<div class="issue-card">
+  <div class="issue-hd">
+    <div class="issue-num num1">1</div>
+    <div class="issue-title">Sh 수협은행 여자바둑 최강전 신설 이슈</div>
+  </div>
+  <div class="issue-body">
+
+    <div class="sub-title">대회 개요 · 규모 비교</div>
+    <div class="cmp-wrap">
+      <table class="cmp-table">
+        <thead><tr><th>구분</th><th>GS칼텍스배 (현행)</th><th>수협배 (신설 예정)</th><th>비고</th></tr></thead>
+        <tbody>
+          <tr><td>재원</td><td>4.8억원</td><td class="warn">6억원 (추정)</td><td>수협배가 25% 규모 大</td></tr>
+          <tr><td>우승상금</td><td>7천만원</td><td class="warn">1억원</td><td>수협배가 43% 높음</td></tr>
+          <tr><td>참가 대상</td><td>남녀 전체 프로기사 (450명)</td><td>여자 프로기사 (90명)</td><td>여자 특화 대회</td></tr>
+          <tr><td>주최 성격</td><td>국내 최대 · 최장수 (1995년~)</td><td>신설 · 여자바둑 육성 목적</td><td></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sub-title">추진 배경 · 맥락</div>
+    <div class="data-list">
+      <div class="data-row"><span class="data-key">핵심 추진자</span><span class="data-val warn">정태순 한국기원 이사장 — 여자 바둑 육성 강력 추진 의지</span></div>
+      <div class="data-row"><span class="data-key">추진 방향</span><span class="data-val">여자바둑 뿐 아니라 기업은행 국제대회 등 추가 기전 신설도 검토 중</span></div>
+      <div class="data-row"><span class="data-key">수협은행 입장</span><span class="data-val">자사 브랜드 이미지·ESG 관점에서 여자 바둑 후원 검토 중인 것으로 파악</span></div>
+      <div class="data-row"><span class="data-key">리그 이해관계</span><span class="data-val">타 바둑 후원사들은 대국료 상승 압력 우려 · 한국기원은 전반적 상금 수준 상향 의지</span></div>
+    </div>
+
+    <div class="sub-title">GS칼텍스배에 미치는 영향</div>
+    <div class="insight warn">
+      <strong>핵심 리스크:</strong> 수협배 대국료 수준(예선 85만원)이 GS칼텍스배 예선 대국료(195,000원)의 4배 이상. 수협배 수준으로 맞춰야 할 경우 <strong>GS칼텍스배 예산이 현 4.8억원 → 약 11억원</strong>으로 급증 가능성. 현재로선 예산 감당 불가 수준.
+    </div>
+
+    <div class="scenario-list" style="margin-top: var(--space-4);">
+      <div class="scenario-row primary">
+        <span class="s-badge preferred">권고안</span>
+        <div class="s-content">
+          <div class="s-title">현 예산 유지 + GS칼텍스배 운영 방식 조정</div>
+          <div class="s-desc">수협배와 차별화하여 GS칼텍스배는 "국내 최대 규모·오픈 참가"의 프리미엄 포지션 유지. 예선 대국료 인상 부담은 한국기원·참가 후원사와 공동 대응 협의.</div>
+        </div>
+      </div>
+      <div class="scenario-row">
+        <span class="s-badge neutral">차선안</span>
+        <div class="s-content">
+          <div class="s-title">GS칼텍스배 예산 증액 (11억원 수준)</div>
+          <div class="s-desc">수협배와 동등 조건 유지. 단, 비용 3배 증가로 내부 예산 승인 절차 필요. 경쟁력 확보 측면에서 검토 가능하나 현실적 부담 큼.</div>
+        </div>
+      </div>
+      <div class="scenario-row">
+        <span class="s-badge risk">검토 시나리오</span>
+        <div class="s-content">
+          <div class="s-title">GS칼텍스배 제한기전 전환 (랭킹 100위 이내)</div>
+          <div class="s-desc">예산 부담 해소. 단, "모든 프로기사 참가 가능" 국내 최대 대회라는 GS칼텍스배의 핵심 정체성 훼손. 매경(매일경제)과 관계 악화 가능성.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     이슈 2: 바둑리그 연봉제 전환
+══════════════════════════════════════ -->
+<div class="issue-card">
+  <div class="issue-hd">
+    <div class="issue-num num2">2</div>
+    <div class="issue-title">바둑리그 연봉제 전환 논의</div>
+  </div>
+  <div class="issue-body">
+
+    <div class="sub-title">현행 vs 검토안</div>
+    <div class="data-list" style="margin-bottom: var(--space-4);">
+      <div class="data-row"><span class="data-key">현행 방식</span><span class="data-val">추첨제 — 선수 선발에 구단 의사 반영 불가. 최대 3년 보유.</span></div>
+      <div class="data-row"><span class="data-key">검토안</span><span class="data-val good">연봉제 + 경쟁입찰 — 1지명자 연봉 상한선 설정, 구단이 원하는 선수 지명·계약</span></div>
+      <div class="data-row"><span class="data-key">대국료</span><span class="data-val warn">연봉제 전환 시 대국료 별도 미지급 (현: 승리 1.4천만원·패배 7백만원 팀 지급)</span></div>
+      <div class="data-row"><span class="data-key">협의 주체</span><span class="data-val">한국기원·프로기사회 협의 진행 중 (1지명 연봉 상한 7천만원, 2지명 5천만원 논의)</span></div>
+    </div>
+
+    <div class="sub-title">장단점 분석</div>
+    <div class="pros-cons">
+      <div class="pros-card">
+        <div class="pc-title">장점 (Pros)</div>
+        <ul class="pc-list">
+          <li>구단이 원하는 선수단 구성 가능</li>
+          <li>감독-선수 궁합 기반 팀 시너지</li>
+          <li>팀 컬러·브랜드 형성 가능</li>
+          <li>프랜차이즈 스타 육성 가능</li>
+          <li>선수 활용 마케팅 강화 가능</li>
+        </ul>
+      </div>
+      <div class="cons-card">
+        <div class="pc-title">단점 (Cons)</div>
+        <ul class="pc-list">
+          <li>팀 운영비 증가 (대국료→연봉 전환)</li>
+          <li>신진서급 스타 쏠림 현상 우려</li>
+          <li>일부 팀 해체 가능성 (운영비 감당 불가)</li>
+          <li>대국료 미지급으로 선수 개인 자격대회 집중 가능성</li>
+          <li>친분 있는 감독-기사 팀 구성 심화 우려</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-title">GS칼텍스 입장</div>
+    <div class="cmp-wrap">
+      <table class="cmp-table">
+        <thead><tr><th>관점</th><th>유리한 점</th><th>불리한 점</th></tr></thead>
+        <tbody>
+          <tr>
+            <td><strong>선수 선발</strong></td>
+            <td class="good">원하는 1지명 직접 영입 가능<br><small>(예: 신진서급 선수 겨냥)</small></td>
+            <td class="warn">타 구단과 동일 선수 경쟁입찰 시 연봉 경쟁 부담</td>
+          </tr>
+          <tr>
+            <td><strong>예산</strong></td>
+            <td class="good">현 팀 참가비(3억원) 구조 유지 전제</td>
+            <td class="warn">연봉 + 운영비 추가 발생. 재원 확보 필요</td>
+          </tr>
+          <tr>
+            <td><strong>전략</strong></td>
+            <td class="good">감독 교체와 연계해 원하는 선수단 구성 가능</td>
+            <td class="warn">변경 확정 시 즉각 재원 확보 + 감독 선임 동시 진행 필요</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <strong>GS칼텍스 대응 원칙:</strong> 연봉제 전환 확정 시 <strong>신속 보고 + 즉각 재원 확보</strong>로 최고 선수 영입 선점. 변경 전까지는 현행 선발 체계에서 AI 기반 선발 프로세스 강화에 집중.
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     이슈 3: 정태순 이사장 정책 방향
+══════════════════════════════════════ -->
+<div class="issue-card">
+  <div class="issue-hd">
+    <div class="issue-num num3">3</div>
+    <div class="issue-title">정태순 한국기원 이사장 주요 정책 방향</div>
+  </div>
+  <div class="issue-body">
+
+    <div class="sub-title">핵심 관심사</div>
+    <div class="policy-grid">
+      <div class="policy-card">
+        <div class="policy-label">정책 ①</div>
+        <div class="policy-title">여자 바둑 육성</div>
+        <ul class="policy-items">
+          <li>수협배 신설 강력 추진 (우승상금 1억원)</li>
+          <li>여자 기사 처우 개선 (대국료 현실화)</li>
+          <li>기업은행 여자 국제대회 신설 추진 검토</li>
+          <li>여자 프로기사 90명 전체 대우 향상 의지</li>
+        </ul>
+      </div>
+      <div class="policy-card">
+        <div class="policy-label">정책 ②</div>
+        <div class="policy-title">유소년 바둑 육성</div>
+        <ul class="policy-items">
+          <li>바둑 인구 저변 확대 핵심 과제</li>
+          <li>초·중학교 바둑 교육 확대 추진</li>
+          <li>지역 바둑교실 지원 확대</li>
+          <li>여수 등 지방 유소년 바둑 인프라 관심</li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="sub-title">GS칼텍스 연계 기회</div>
+    <div class="data-list">
+      <div class="data-row"><span class="data-key">초보바둑교실</span><span class="data-val good">본사 하반기 개최 예정 — 이사장 관심사인 바둑 저변 확대 직접 부합</span></div>
+      <div class="data-row"><span class="data-key">여수 유소년</span><span class="data-val good">여수 위기청소년 바둑교실 지원 계획 — 여수지역 유소년 육성 연계 가능</span></div>
+      <div class="data-row"><span class="data-key">팀 CSR</span><span class="data-val">다문화 바둑교실 등 사회공헌 연계 → 이사장 육성 정책 기여 메시지 가능</span></div>
+      <div class="data-row"><span class="data-key">여수세계섬박람회</span><span class="data-val">바둑 관련 협조 요청 가능성 — 사전 대응 준비 필요</span></div>
+    </div>
+
+    <div class="insight good">
+      <strong>면담 포인트:</strong> 이사장의 여자바둑·유소년 육성 의지를 GS칼텍스배 운영, CSR 프로그램과 연결하여 <strong>"GS칼텍스 = 한국 바둑 저변 확대의 핵심 파트너"</strong> 포지셔닝 강화.
+    </div>
+
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     이슈 4: GS칼텍스 대응 방향
+══════════════════════════════════════ -->
+<div class="issue-card">
+  <div class="issue-hd">
+    <div class="issue-num num4">4</div>
+    <div class="issue-title">GS칼텍스 대응 방향 — 이슈별 액션</div>
+  </div>
+  <div class="issue-body">
+
+    <div class="cmp-wrap">
+      <table class="resp-table">
+        <thead>
+          <tr><th style="width:18%">이슈</th><th style="width:22%">GS칼텍스 입장</th><th style="width:30%">단기 액션 (6개월)</th><th>중기 방향 (26-27)</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><strong>수협배 신설</strong></td>
+            <td>우려 — 대국료 상승·예산 압박</td>
+            <td class="action">한국기원과 사전 협의, 타 후원사 반응 모니터링. GS칼텍스배 차별성(오픈·최대 규모) 강조.</td>
+            <td>예산 현실적 검토 후 운영 방식 결정. 제한기전 전환은 최후 옵션.</td>
+          </tr>
+          <tr>
+            <td><strong>연봉제 전환</strong></td>
+            <td>기회 — 원하는 선수 선발 가능</td>
+            <td class="action">변경 확정 시 즉각 재원 확보 보고. 1지명 후보 사전 리스트업.</td>
+            <td>감독 교체 + 연봉제 환경에서 전략적 선수단 재구성.</td>
+          </tr>
+          <tr>
+            <td><strong>정태순 이사장</strong></td>
+            <td>우호적 관계 구축 기회</td>
+            <td class="action">초보바둑교실, 여수 유소년 지원 실행. 면담 시 육성 기여 메시지 전달.</td>
+            <td>팀 창단 20주년(2026) CSR 연계 — 바둑 대중화 기여 스토리 구축.</td>
+          </tr>
+          <tr>
+            <td><strong>바둑리그 팀 운영</strong></td>
+            <td>성적 반등 시급</td>
+            <td class="action">감독 교체 결정 + 골락시 AI 도입 예산 승인 (1,200만원).</td>
+            <td>26-27 포스트시즌 진출 목표. 선수 전원 재선발 + 오더 재설계.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="insight">
+      <strong>핵심 메시지:</strong> GS칼텍스는 1995년부터 한국 바둑 최장수 스폰서. 수협배 신설 등 환경 변화에도 <strong>팀리그 + 기전 후원의 이중 포지셔닝</strong>을 유지하며, 바둑 대중화·여성·유소년 육성에 기여하는 파트너 역할 강화가 중장기 후원 명분.
+    </div>
+
+  </div>
+</div>
+
+<div class="doc-footer">
+  <span>GS칼텍스 전략기획실 · 명예회장 보고용 · 대외비</span>
+  <span>작성 기준 2026.06 · 정태순 이사장 면담 대비</span>
+</div>
+
+</div>
+</body>
+</html>
